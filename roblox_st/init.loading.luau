@@ -1,19 +1,17 @@
-
--- Place this in StarterGui as a LocalScript
-
+-- startergui localscript (mans starta ekrāns)
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Create ScreenGui
+-- izveidoju ScreenGui (starta izvēlne)
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "StartupMenu"
 screenGui.ResetOnSpawn = false
 screenGui.IgnoreGuiInset = true
 screenGui.Parent = playerGui
 
--- Main Frame (Background)
+-- galvenais rāmis (fon rāmis)
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
 mainFrame.Size = UDim2.new(1, 0, 1, 0)
@@ -108,14 +106,14 @@ local backCorner = Instance.new("UICorner")
 backCorner.CornerRadius = UDim.new(0, 8)
 backCorner.Parent = backButton
 
--- Button data (INVERTED - from bottom to top)
+-- pogu dati (apgriezts: no apakšas uz augšu) — stilīga piezīme
 local buttons = {
 	{name = "CREDITS", color = Color3.fromRGB(20, 40, 60), icon = "</> ", position = 2},
 	{name = "SETTINGS", color = Color3.fromRGB(20, 50, 40), icon = "⚙ ", position = 1},
 	{name = "PLAY", color = Color3.fromRGB(30, 70, 40), icon = "▶ ", position = 0}
 }
 
--- Function to create animated button (INVERTED STYLE)
+-- izveido animētu pogu (apgriezts stils, mani hover efekti)
 local function createButton(data, index)
 	local button = Instance.new("TextButton")
 	button.Name = data.name .. "Button"
@@ -200,7 +198,7 @@ local function createButton(data, index)
 		strokeTween:Play()
 	end)
 
-	-- Button click actions
+	-- pogu klikšķi: play/darbojas/beidz GUI (mans)
 	button.MouseButton1Click:Connect(function()
 		if data.name == "PLAY" then
 			-- Start game - remove GUI immediately
@@ -222,7 +220,7 @@ for i, buttonData in ipairs(buttons) do
 	createButton(buttonData, i)
 end
 
--- Back button functionality
+-- back poga: samazinu saturu un paslēpu
 backButton.MouseButton1Click:Connect(function()
 	local hideTween = TweenService:Create(contentFrame, TweenInfo.new(0.3), {
 		Size = UDim2.new(0, 0, 0, 0)
@@ -248,7 +246,7 @@ backButton.MouseLeave:Connect(function()
 	hoverTween:Play()
 end)
 
--- Title pulse animation
+-- virsraksta pulsēšanas efekts (vienkārši vizuāls)
 spawn(function()
 	while titleLabel and titleLabel.Parent do
 		local pulseTween = TweenService:Create(titleLabel, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
@@ -265,7 +263,7 @@ spawn(function()
 	end
 end)
 
--- Create floating particles
+-- plaukstošās daļiņas (vēl viena vizuāla lieta)
 spawn(function()
 	for i = 1, 15 do
 		local particle = Instance.new("Frame")

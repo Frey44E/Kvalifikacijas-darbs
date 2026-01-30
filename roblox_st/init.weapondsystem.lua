@@ -1,26 +1,24 @@
-
--- Place this in StarterGui as a separate LocalScript
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Wait for the startup menu to be destroyed (when PLAY is pressed)
+-- gaidu, kamēr StartupMenu pazūd (play nospiests)
 local startupMenu = playerGui:WaitForChild("StartupMenu")
-startupMenu.AncestryChanged:Wait() -- Wait until it's destroyed
+startupMenu.AncestryChanged:Wait() -- gaidu iznīkšanu
 
--- Wait for character
+-- gaidu characteru
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 
--- Create ScreenGui for HUD
+-- izveidoju ScreenGui priekš mana HUD
 local hudGui = Instance.new("ScreenGui")
 hudGui.Name = "GameHUD"
 hudGui.ResetOnSpawn = false
 hudGui.IgnoreGuiInset = true
 hudGui.Parent = playerGui
 
--- Main HUD Container (bottom right)
+-- galvenais HUD rāmis (apakšējais labais)
 local hudContainer = Instance.new("Frame")
 hudContainer.Name = "HUDContainer"
 hudContainer.Size = UDim2.new(0, 300, 0, 150) -- Increased height for weapons
@@ -48,7 +46,7 @@ weaponStroke.Thickness = 2
 weaponStroke.Transparency = 0.5
 weaponStroke.Parent = weaponContainer
 
--- Weapon Icon (placeholder)
+-- ierocis: ikona (viettura)
 local weaponIcon = Instance.new("ImageLabel")
 weaponIcon.Name = "WeaponIcon"
 weaponIcon.Size = UDim2.new(0, 70, 0, 70)
@@ -63,7 +61,7 @@ local weaponIconCorner = Instance.new("UICorner")
 weaponIconCorner.CornerRadius = UDim.new(0, 6)
 weaponIconCorner.Parent = weaponIcon
 
--- Placeholder icon (when no image is set)
+-- Viettura ikona (ja nav attēls)
 local placeholderLabel = Instance.new("TextLabel")
 placeholderLabel.Size = UDim2.new(1, 0, 1, 0)
 placeholderLabel.BackgroundTransparency = 1
@@ -73,7 +71,7 @@ placeholderLabel.TextSize = 40
 placeholderLabel.TextColor3 = Color3.fromRGB(200, 200, 220)
 placeholderLabel.Parent = weaponIcon
 
--- Weapon Name
+-- Ierocis: nosaukums
 local weaponName = Instance.new("TextLabel")
 weaponName.Name = "WeaponName"
 weaponName.Size = UDim2.new(1, -100, 0, 30)
@@ -86,7 +84,7 @@ weaponName.TextColor3 = Color3.fromRGB(255, 255, 255)
 weaponName.TextXAlignment = Enum.TextXAlignment.Left
 weaponName.Parent = weaponContainer
 
--- Ammo Display
+-- Munīcijas rādītājs
 local ammoLabel = Instance.new("TextLabel")
 ammoLabel.Name = "AmmoLabel"
 ammoLabel.Size = UDim2.new(1, -100, 0, 40)
@@ -99,7 +97,7 @@ ammoLabel.TextColor3 = Color3.fromRGB(255, 255, 100)
 ammoLabel.TextXAlignment = Enum.TextXAlignment.Left
 ammoLabel.Parent = weaponContainer
 
--- Secondary Weapon Indicator (smaller)
+-- sekundārā ikona (mazāka)
 local secondaryWeapon = Instance.new("Frame")
 secondaryWeapon.Name = "SecondaryWeapon"
 secondaryWeapon.Size = UDim2.new(0, 50, 0, 50)
@@ -209,7 +207,7 @@ hpPercentage.TextXAlignment = Enum.TextXAlignment.Right
 hpPercentage.Parent = hpBarContainer
 
 -- ==================== UPDATE FUNCTIONS ====================
--- Update HP Bar
+-- atjaunināt HP joslu (mans kods)
 local function updateHPBar()
 	local healthPercent = humanoid.Health / humanoid.MaxHealth
 	local percentage = math.floor(healthPercent * 100)
@@ -236,7 +234,7 @@ local function updateHPBar()
 	end
 end
 
--- Update Weapon Display (placeholder function - connect to your weapon system)
+-- updateWeaponDisplay: viettura funkcija, savieno ar ieroču sistēmu
 local function updateWeaponDisplay(weaponData)
 	-- Example weaponData format:
 	-- {
@@ -274,10 +272,10 @@ local function updateWeaponDisplay(weaponData)
 	end
 end
 
--- Listen for health changes
+-- klausos veselības izmaiņas
 humanoid.HealthChanged:Connect(updateHPBar)
 
--- Initial update
+-- sākotnējais atjauninājums un animācija
 updateHPBar()
 
 -- Slide in animation

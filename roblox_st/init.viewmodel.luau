@@ -1,5 +1,4 @@
-
--- viewmodel prieks firspersona rīkiem Roblox 
+-- viewmodel priekš first-person (mans piezīmju skripts)
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -9,26 +8,26 @@ local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid") :: Humanoid
 local camera = workspace.CurrentCamera
 
--- ViewModel Configuration
+-- viewmodel konfig
 local ViewModel = {}
 ViewModel.__index = ViewModel
 
--- Settings
+-- iestatījumi (pielāgo sev)
 local VIEWMODEL_FOV = 70
 local SWAY_AMOUNT = 0.5
 local BOB_AMOUNT = 0.2
 local BOB_SPEED = 10
 local LERP_SPEED = 0.2
 
--- Create ViewModel class
+-- izveido ViewModel klasi
 function ViewModel.new(toolModel: Model)
 	local self = setmetatable({}, ViewModel)
 	
-	-- Clone the tool model for viewmodel
+	-- klonēju tool modeli viewmodel'ī
 	self.model = toolModel:Clone()
 	self.model.Parent = camera
 	
-	-- Disable collision for all parts
+	-- atslēdzu kolīzijas uz visu parts
 	for _, part in ipairs(self.model:GetDescendants()) do
 		if part:IsA("BasePart") then
 			part.CanCollide = false
@@ -38,22 +37,22 @@ function ViewModel.new(toolModel: Model)
 		end
 	end
 	
-	-- Get the main part 
+	-- galvenā daļa 
 	self.primaryPart = self.model.PrimaryPart or self.model:FindFirstChild("Handle")
 	
-	-- Initialize variables
-	self.offset = CFrame.new(0.5, -0.5, -1) -- Default offset from camera
+	-- sākotnējie mainīgie (offsets utt)
+	self.offset = CFrame.new(0.5, -0.5, -1) -- Noklusējuma attālums no kameras
 	self.swayOffset = CFrame.new()
 	self.bobOffset = CFrame.new()
 	self.currentCFrame = CFrame.new()
 	self.bobTime = 0
 	self.lastMousePosition = UserInputService:GetMouseLocation()
 	
-	-- Animation tracks
+	-- animāciju sliedes
 	self.animations = {}
 	self.currentAnimation = nil
 	
-	-- Setup animator if model has a humanoid
+	-- uzstādīt animatoru, ja modelim ir humanoids
 	local viewmodelHumanoid = self.model:FindFirstChildOfClass("Humanoid")
 	if viewmodelHumanoid then
 		self.animator = viewmodelHumanoid:FindFirstChildOfClass("Animator")
@@ -62,10 +61,10 @@ function ViewModel.new(toolModel: Model)
 	return self
 end
 
--- Load animation
+-- ielādēt animāciju (ja vajag)
 function ViewModel:LoadAnimation(animationId: string | Animation)
 	if not self.animator then
-		warn("No animator found in viewmodel")
+		warn("Nav atrasts neviens animators viewmodel'ā")
 		return nil
 	end
 	
@@ -81,7 +80,7 @@ function ViewModel:LoadAnimation(animationId: string | Animation)
 	return track
 end
 
--- Play animation
+-- atskaņot animāciju
 function ViewModel:PlayAnimation(animationName: string, fadeTime: number?)
 	if self.animations[animationName] then
 		if self.currentAnimation then
@@ -93,7 +92,7 @@ function ViewModel:PlayAnimation(animationName: string, fadeTime: number?)
 	end
 end
 
--- Stop animation
+-- apstādināt animāciju
 function ViewModel:StopAnimation(fadeTime: number?)
 	if self.currentAnimation then
 		self.currentAnimation:Stop(fadeTime or 0.1)
@@ -101,29 +100,29 @@ function ViewModel:StopAnimation(fadeTime: number?)
 	end
 end
 
--- Calculate mouse sway
+-- aprēķinu mouse sway
 function ViewModel:CalculateSway(deltaTime: number)
 	local mousePosition = UserInputService:GetMouseLocation()
 	local mouseDelta = mousePosition - self.lastMousePosition
 	self.lastMousePosition = mousePosition
 	
-	-- Apply sway based on mouse movement
+	-- pielāgo sway, balstoties uz peles kustību
 	local swayX = -mouseDelta.X * SWAY_AMOUNT * deltaTime
 	local swayY = -mouseDelta.Y * SWAY_AMOUNT * deltaTime
 	
-	-- Lerp to smooth out the sway
+	-- Lerp, lai izlīdzinātu sway efektu
 	self.swayOffset = self.swayOffset:Lerp(
 		CFrame.Angles(math.rad(swayY), math.rad(swayX), 0),
 		LERP_SPEED
 	)
 	
-	-- Gradually return to center
+	-- pakāpeniski atgriezties centrā
 	self.swayOffset = self.swayOffset:Lerp(CFrame.new(), LERP_SPEED * 0.5)
 end
 
--- Calculate walking bob
+-- aprēķinu bob (staigāšanas efekts)
 function ViewModel:CalculateBob(deltaTime: number)
-	-- Only bob when moving
+	-- tikai kustības gadījumā
 	if humanoid.MoveVector.Magnitude > 0 then
 		self.bobTime = self.bobTime + deltaTime * BOB_SPEED
 		
@@ -132,27 +131,27 @@ function ViewModel:CalculateBob(deltaTime: number)
 		
 		self.bobOffset = CFrame.new(bobX, bobY, 0)
 	else
-		-- Return to center when not moving
+		-- atgriezties centrā, ja nekustas
 		self.bobTime = 0
 		self.bobOffset = self.bobOffset:Lerp(CFrame.new(), LERP_SPEED)
 	end
 end
 
--- Update viewmodel position
+-- atjaunot pozīciju katru kadru
 function ViewModel:Update(deltaTime: number)
 	if not self.primaryPart then return end
 	
-	-- Calculate effects
+	-- aprēķināt efektus
 	self:CalculateSway(deltaTime)
 	self:CalculateBob(deltaTime)
 	
-	-- Combine all transformations
+	-- apvienot visas transformācijas
 	local targetCFrame = camera.CFrame * self.offset * self.swayOffset * self.bobOffset
 	
-	-- Smooth lerp to target position
+	-- gluda pāreja uz mērķa pozīciju
 	self.currentCFrame = self.currentCFrame:Lerp(targetCFrame, LERP_SPEED)
 	
-	-- Apply to model
+	-- piemērot modelim
 	if self.model.PrimaryPart then
 		self.model:SetPrimaryPartCFrame(self.currentCFrame)
 	else
@@ -160,12 +159,12 @@ function ViewModel:Update(deltaTime: number)
 	end
 end
 
--- Set offset from camera
+-- offseta setter un destroy
 function ViewModel:SetOffset(offset: CFrame)
 	self.offset = offset
 end
 
--- Destroy viewmodel
+-- iznīcināt viewmodel
 function ViewModel:Destroy()
 	if self.currentAnimation then
 		self.currentAnimation:Stop()
@@ -174,16 +173,16 @@ function ViewModel:Destroy()
 	self.model:Destroy()
 end
 
--- Example usage function
+-- piemēra izmantošana
 function ViewModel:SetupExampleTool()
-	-- Load animations (replace with your animation IDs)
-	self.animations.Idle = self:LoadAnimation("1234567890") -- Replace with actual ID
-	self.animations.Fire = self:LoadAnimation("1234567890") -- Replace with actual ID
-	self.animations.Reload = self:LoadAnimation("1234567890") -- Replace with actual ID
+	-- ielādēt animācijas (aizstāj ar savām animāciju ID)
+	self.animations.Idle = self:LoadAnimation("1234567890") -- Aizstāj ar reālo ID
+	self.animations.Fire = self:LoadAnimation("1234567890") -- Aizstāj ar reālo ID
+	self.animations.Reload = self:LoadAnimation("1234567890") -- Aizstāj ar reālo ID
 	
-	-- Play idle animation
+	-- atskaņot neaktivitātes animāciju
 	self:PlayAnimation("Idle")
 end
 
--- Export
+-- eksports
 return ViewModel
